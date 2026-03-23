@@ -11,9 +11,19 @@ export function AuthPage({ onLogin }: AuthPageProps) {
   const [isRegister, setIsRegister] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'PATIENT' | 'DOCTOR'>('PATIENT');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleAuth = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    
+    // Validación de campos vacíos
+    if (!email || !password) {
+      setErrorMsg(t('auth.errorEmpty'));
+      return;
+    }
+
+    setErrorMsg('');
     let name = 'Gonzalo'; // Fallback por defecto
     if (email) {
       const parts = email.split('@')[0];
@@ -48,7 +58,21 @@ export function AuthPage({ onLogin }: AuthPageProps) {
           <span>{t('auth.orUseEmail')}</span>
         </div>
 
-        <form className="auth-form" onSubmit={handleAuth}>
+        <form className="auth-form" onSubmit={handleAuth} noValidate>
+          {errorMsg && (
+            <div className="error-banner" style={{ 
+              backgroundColor: 'rgba(239, 68, 68, 0.1)', 
+              color: '#ef4444', 
+              padding: '0.75rem', 
+              borderRadius: '8px', 
+              marginBottom: '1rem', 
+              fontSize: '0.85rem',
+              textAlign: 'center',
+              border: '1px solid rgba(239, 68, 68, 0.2)'
+            }}>
+              {errorMsg}
+            </div>
+          )}
           {isRegister && (
             <div className="form-group">
                <UserRound className="input-icon" size={20} />
@@ -63,7 +87,16 @@ export function AuthPage({ onLogin }: AuthPageProps) {
 
           <div className="form-group">
              <Lock className="input-icon" size={20} />
-             <input type="password" placeholder={t('auth.password')} required />
+             <input 
+               type="password" 
+               placeholder={t('auth.password')} 
+               required 
+               value={password} 
+               onChange={(e) => {
+                 setPassword(e.target.value);
+                 if (errorMsg) setErrorMsg('');
+               }} 
+             />
           </div>
 
           <div className="role-selector">

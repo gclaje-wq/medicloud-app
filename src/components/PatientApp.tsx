@@ -1,4 +1,4 @@
-import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut } from 'lucide-react';
+import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut, QrCode } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceArea } from 'recharts';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +26,7 @@ export function PatientApp({ userName = 'Gonzalo', onLogout }: { userName?: stri
   const [isSymptomOpen, setIsSymptomOpen] = useState(false);
   const [isPreConsultOpen, setIsPreConsultOpen] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
+  const [isQrOpen, setIsQrOpen] = useState(false);
   const [labData, setLabData] = useState([
     { date: 'Oct', glucosa: 88 },
     { date: 'Nov', glucosa: 92 },
@@ -125,6 +126,9 @@ export function PatientApp({ userName = 'Gonzalo', onLogout }: { userName?: stri
               <p>{t('patient.healthUpToDate')}</p>
             </div>
           </div>
+          <button className="icon-btn" onClick={() => setIsQrOpen(true)} style={{ marginRight: '0.5rem' }}>
+            <QrCode color="var(--accent-primary)" size={24} />
+          </button>
           <button className="icon-btn" onClick={onLogout}>
             <LogOut color="var(--danger)" size={24} />
           </button>
@@ -619,7 +623,55 @@ export function PatientApp({ userName = 'Gonzalo', onLogout }: { userName?: stri
             <span>{t('nav.privacy')}</span>
           </button>
         </div>
+
+        {/* QR Handshake Modal */}
+        {isQrOpen && (
+          <div className="modal-overlay" style={{ zIndex: 10001 }}>
+            <div className="modal-content" style={{ textAlign: 'center', maxWidth: '320px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button className="icon-btn" onClick={() => setIsQrOpen(false)}><X size={24} /></button>
+              </div>
+              <h3 style={{ marginBottom: '1rem' }}>{t('patient.qrShare')}</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                {t('patient.qrDesc')}
+              </p>
+              
+              <div style={{ 
+                background: 'white', 
+                padding: '1.5rem', 
+                borderRadius: '20px', 
+                display: 'inline-block',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
+                marginBottom: '1.5rem'
+              }}>
+                <QrCode size={180} color="#0f172a" />
+              </div>
+
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '0.5rem',
+                color: 'var(--accent-primary)',
+                fontSize: '0.9rem',
+                fontWeight: 600
+              }}>
+                <Activity size={16} className="pulse" />
+                <span>{t('patient.qrWaiting')}</span>
+              </div>
+
+              <button 
+                className="btn btn-primary btn-block" 
+                style={{ marginTop: '1.5rem' }}
+                onClick={() => setIsQrOpen(false)}
+              >
+                {t('patient.view')}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
 
     </div>
   );

@@ -20,7 +20,8 @@ const resources = {
         noAccount: "¿No tenés una cuenta?",
         hasAccount: "¿Ya tenés cuenta?",
         loginHere: "Iniciá Sesión",
-        registerHere: "Registrate aquí"
+        registerHere: "Registrate aquí",
+        errorEmpty: "Por favor, completa todos los campos"
       },
       nav: {
         home: "Inicio",
@@ -51,7 +52,10 @@ const resources = {
         privacyDesc: "Tu historia clínica es tuya. Elegí exactamente qué profesionales y centros médicos pueden acceder a tu información en tiempo real.",
         activeAccess: "Acceso Activo",
         revoked: "Revocado",
-        view: "Ver"
+        view: "Ver",
+        qrShare: "Compartir Historial",
+        qrDesc: "Mostrá este código al profesional para darle acceso inmediato a tus estudios.",
+        qrWaiting: "Esperando escaneo..."
       }
     }
   },
@@ -73,7 +77,8 @@ const resources = {
         noAccount: "Don't have an account?",
         hasAccount: "Already have an account?",
         loginHere: "Sign in here",
-        registerHere: "Sign up here"
+        registerHere: "Sign up here",
+        errorEmpty: "Please complete all fields"
       },
       nav: {
         home: "Home",
@@ -104,7 +109,10 @@ const resources = {
         privacyDesc: "Your medical history is yours. Choose exactly which physicians and medical centers can access your information in real-time.",
         activeAccess: "Active Access",
         revoked: "Revoked",
-        view: "View"
+        view: "View",
+        qrShare: "Share Medical History",
+        qrDesc: "Show this code to the professional to give them immediate access to your studies.",
+        qrWaiting: "Waiting for scan..."
       }
     }
   }
