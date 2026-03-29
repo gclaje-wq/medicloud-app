@@ -354,10 +354,10 @@ export function PatientApp({
               <h4 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem', marginTop: '1rem' }}>{t('patient.upcoming')}</h4>
               
               {/* Pre-Consultation Notice */}
-              <div style={{ backgroundColor: '#e0f2fe', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem', border: '1px solid #7dd3fc', display: 'flex', alignItems: 'flex-start', gap: '0.75rem', cursor: 'pointer' }} onClick={() => setIsPreConsultOpen(true)}>
-                <AlertCircle size={20} color="var(--accent-secondary)" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div style={{ backgroundColor: 'var(--accent-primary-transparent, rgba(14, 165, 233, 0.15))', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem', border: '1px solid var(--accent-primary)', display: 'flex', alignItems: 'flex-start', gap: '0.75rem', cursor: 'pointer' }} onClick={() => setIsPreConsultOpen(true)}>
+                <AlertCircle size={20} color="var(--accent-primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
                 <div>
-                  <h5 style={{ color: 'var(--accent-secondary)', fontSize: '0.9rem', marginBottom: '0.2rem' }}>Turno mañana: Dra. Ríos</h5>
+                  <h5 style={{ color: 'var(--accent-primary)', fontSize: '0.9rem', marginBottom: '0.2rem', fontWeight: 700 }}>Turno mañana: Dra. Ríos</h5>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}>¿Qué querés consultarle mañana? Anotá tus prioridades acá para la Dra.</p>
                 </div>
               </div>
@@ -490,7 +490,12 @@ export function PatientApp({
           <div className="preview-lightbox" onClick={() => setIsScheduling(false)}>
             <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
               <div className="sheet-handle"></div>
-              <h3 style={{ marginBottom: '1rem', fontWeight: 700, fontSize: '1.2rem' }}>Agendar Nueva Cita</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontWeight: 700, fontSize: '1.2rem' }}>Agendar Nueva Cita</h3>
+                <button className="icon-btn" onClick={() => setIsScheduling(false)} style={{ padding: '0.4rem' }}>
+                  <X size={20} />
+                </button>
+              </div>
               
               <div className="segment-control" style={{ marginBottom: '1.5rem' }}>
                 <button 
@@ -574,6 +579,12 @@ export function PatientApp({
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {selectedPlace && (
+                    <div style={{ marginTop: '-0.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: 'var(--accent-primary)' }}>
+                      <MapPin size={12} /> <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Ver ubicación del consultorio</span>
                     </div>
                   )}
                 </>
