@@ -88,7 +88,7 @@ const resources = {
       },
       patient: {
         hello: "Hello, {{name}}!",
-        healthUpToDate: "Your health, continuously tracked",
+        healthUpToDate: "Your health up to date",
         recentActivity: "Recent Activity",
         seeAll: "See all",
         uploadStudy: "Upload Study",
