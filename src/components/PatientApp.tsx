@@ -39,6 +39,8 @@ export function PatientApp({
   const [isQrOpen, setIsQrOpen] = useState(false);
   const [schedulingType, setSchedulingType] = useState<'DOCTOR' | 'LAB'>('DOCTOR');
   const [selectedPlace, setSelectedPlace] = useState('');
+  const [selectedDay, setSelectedDay] = useState('03');
+  const [selectedHour, setSelectedHour] = useState('09:30');
   const [labData, setLabData] = useState([
     { date: 'Oct', glucosa: 88 },
     { date: 'Nov', glucosa: 92 },
@@ -108,7 +110,7 @@ export function PatientApp({
   const confirmAppointment = () => {
     setIsScheduling(false);
     const title = schedulingType === 'DOCTOR' ? (selectedPlace || 'Consulta Médica') : (selectedPlace || 'Estudio Clínico');
-    const subtitle = schedulingType === 'DOCTOR' ? 'Profesional • 28 Mar, 10:00' : 'Ctro. Diagnóstico • 30 Mar, 09:30';
+    const subtitle = schedulingType === 'DOCTOR' ? `Profesional • ${selectedDay} Abr, ${selectedHour}` : `Ctro. Diagnóstico • ${selectedDay} Abr, ${selectedHour}`;
     
     setUploadedFiles(prev => [{
       name: title,
@@ -537,34 +539,31 @@ export function PatientApp({
                   <div className="form-group" style={{ marginBottom: '1.5rem' }}>
                     <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Días Disponibles - Abril 2026</label>
                     <div className="date-selector">
-                      <div className="date-card">
-                        <span className="day">Mie</span>
-                        <span className="date">01</span>
-                      </div>
-                      <div className="date-card">
-                        <span className="day">Jue</span>
-                        <span className="date">02</span>
-                      </div>
-                      <div className="date-card active">
-                        <span className="day">Vie</span>
-                        <span className="date">03</span>
-                      </div>
-                      <div className="date-card">
-                        <span className="day">Lun</span>
-                        <span className="date">06</span>
-                      </div>
+                      {['01', '02', '03', '06'].map(d => (
+                        <div 
+                          key={d} 
+                          className={`date-card ${selectedDay === d ? 'active' : ''}`} 
+                          onClick={() => setSelectedDay(d)}
+                        >
+                          <span className="day">{d === '01' ? 'Mie' : d === '02' ? 'Jue' : d === '03' ? 'Vie' : 'Lun'}</span>
+                          <span className="date">{d}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
                   <div className="form-group" style={{ marginBottom: '1.5rem' }}>
                     <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Horarios para {selectedPlace}</label>
                     <div className="time-selector">
-                      <span className="time-badge">08:00</span>
-                      <span className="time-badge active">09:30</span>
-                      <span className="time-badge disabled">10:00</span>
-                      <span className="time-badge">11:15</span>
-                      <span className="time-badge">14:30</span>
-                      <span className="time-badge">16:00</span>
+                      {['08:00', '09:30', '11:15', '14:30', '16:00'].map(h => (
+                        <span 
+                          key={h} 
+                          className={`time-badge ${selectedHour === h ? 'active' : ''}`} 
+                          onClick={() => setSelectedHour(h)}
+                        >
+                          {h}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </>
