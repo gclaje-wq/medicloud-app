@@ -1,4 +1,4 @@
-import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut, QrCode, Sun, Moon, Globe, Building2, MapPin, Stethoscope } from 'lucide-react';
+import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut, QrCode, Sun, Moon, Globe, Building2, MapPin, Stethoscope, Star } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceArea } from 'recharts';
 import { useTranslation } from 'react-i18next';
@@ -106,6 +106,21 @@ export function PatientApp({
       // Append the scanned value magically
       setLabData(prev => [...prev, { date: 'Hoy', glucosa: 85 }]);
     }, 2500);
+  };
+
+  const renderStars = (rating: number) => {
+    return (
+      <div style={{ display: 'flex', gap: '2px' }}>
+        {[1, 2, 3, 4, 5].map(star => (
+          <Star 
+            key={star} 
+            size={10} 
+            fill={star <= Math.floor(rating) ? '#fbbf24' : 'transparent'} 
+            color={star <= Math.floor(rating) ? '#fbbf24' : '#d1d5db'} 
+          />
+        ))}
+      </div>
+    );
   };
 
   const confirmAppointment = () => {
@@ -521,9 +536,9 @@ export function PatientApp({
                       <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Profesionales en {selectedSpecialty}</label>
                       <div className="doctor-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {[
-                          { name: 'Dra. Ana Ríos', desc: 'Especialista Senior', rating: '4.8', next: 'Hoy 16:00' },
-                          { name: 'Dr. Julián Pérez', desc: 'Post-doctorado Harvard', rating: '4.9', next: 'Mañana 09:00' },
-                          { name: 'Dr. Martín Gómez', desc: 'Jefe de área', rating: '4.7', next: 'Vie 03 Abr' }
+                          { name: 'Dra. Ana Ríos', desc: 'Especialista Senior', rating: 4.8, reviews: 124, next: 'Hoy 16:00' },
+                          { name: 'Dr. Julián Pérez', desc: 'Post-doctorado Harvard', rating: 4.9, reviews: 89, next: 'Mañana 09:00' },
+                          { name: 'Dr. Martín Gómez', desc: 'Jefe de área', rating: 4.3, reviews: 215, next: 'Vie 03 Abr' }
                         ].filter(d => selectedSpecialty === 'Traumatología' ? d.name !== 'Dermatología' : true).map(doc => (
                           <div 
                             key={doc.name} 
@@ -544,8 +559,16 @@ export function PatientApp({
                           >
                             <div className="doc-avatar" style={{ width: '36px', height: '36px', fontSize: '0.8rem' }}>{doc.name.split(' ')[1].substring(0, 2).toUpperCase()}</div>
                             <div style={{ flex: 1 }}>
-                              <h5 style={{ fontSize: '0.9rem', marginBottom: '0.1rem' }}>{doc.name}</h5>
-                              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>⭐ {doc.rating} • <span style={{ color: 'var(--success)', fontWeight: 600 }}>Próximo: {doc.next}</span></p>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <h5 style={{ fontSize: '0.9rem', marginBottom: '0.1rem' }}>{doc.name}</h5>
+                                {renderStars(doc.rating)}
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                                  {doc.rating} ({doc.reviews} {t('patient.reviews') || 'reseñas'})
+                                </p>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--success)', fontWeight: 600 }}>{doc.next}</span>
+                              </div>
                             </div>
                             {selectedPlace === doc.name && <CheckCircle size={16} color="var(--accent-primary)" />}
                           </div>
