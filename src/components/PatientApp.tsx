@@ -108,6 +108,11 @@ export function PatientApp({
     }, 2500);
   };
 
+  const institutionalFiles = [
+    { name: 'Ecografía Abdominal', size: '2.4 MB', url: '', date: '25 Mar', center: 'Hospital Alemán', type: 'INST' },
+    { name: 'Radiografía de Tórax', size: '1.1 MB', url: '', date: '10 Feb', center: 'Sanatorio Otamendi', type: 'INST' }
+  ];
+
   const renderStars = (rating: number) => {
     return (
       <div style={{ display: 'flex', gap: '2px' }}>
@@ -271,23 +276,37 @@ export function PatientApp({
                     <button className="btn btn-outline" style={{ flex: 1, padding: '0.6rem', color: '#10b981', borderColor: '#10b981' }} onClick={handleOcrScan}>
                       <Camera size={14} /> {t('patient.scanPaper')}
                     </button>
-                  </div>
-                  <div className="timeline">
-                    {uploadedFiles.filter(f => !(f as any).isAppointment).map((file, idx) => (
+                                  <div className="timeline">
+                    {/* Synchronized from Centers */}
+                    <div style={{ padding: '0.8rem', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', marginBottom: '1rem', border: '1px dotted var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Activity size={14} className="pulse" color="var(--accent-primary)" />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Sincronizando con Centros Externos...</span>
+                    </div>
+
+                    {[...uploadedFiles.filter(f => !(f as any).isAppointment), ...institutionalFiles].map((file: any, idx) => (
                       <div key={idx} className="timeline-item timeline-uploaded">
-                        <div className="timeline-icon bg-blue"><CheckCircle size={14} /></div>
+                        <div className={`timeline-icon ${file.type === 'INST' ? 'bg-green' : 'bg-blue'}`}>
+                          {file.type === 'INST' ? <Building2 size={14} /> : <CheckCircle size={14} />}
+                        </div>
                         <div className="timeline-content">
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
-                              <h4>{file.name}</h4>
-                              <span style={{fontSize:'0.7rem', color:'var(--text-secondary)'}}>{file.size}</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <h4>{file.name}</h4>
+                                {file.type === 'INST' && (
+                                  <span style={{ fontSize: '0.6rem', backgroundColor: 'var(--success)', color: 'white', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>OFICIAL</span>
+                                )}
+                              </div>
+                              <span style={{fontSize:'0.7rem', color:'var(--text-secondary)'}}>{file.size} {file.center ? `• ${file.center}` : ''}</span>
                             </div>
-                            <button className="btn-view-study" onClick={() => setPreviewFile(file)}>
+                            <button className="btn-view-study" onClick={() => file.type !== 'INST' ? setPreviewFile(file) : alert("Abriendo portal seguro del Centro...")}>
                               <Eye size={14} /> {t('patient.view')}
                             </button>
                           </div>
-                          <p style={{ marginTop: '0.25rem' }}>Subido exitosamente • En nube segura</p>
-                          <span className="timeline-doctor">Compartido con Médicos Activos</span>
+                          <p style={{ marginTop: '0.25rem' }}>{file.type === 'INST' ? 'Validado por Institución' : 'Subido personalmente'}</p>
+                          <span className="timeline-doctor">
+                            {file.type === 'INST' ? 'Firmado digitalmente • Historia Clínica Única' : 'Nube segura • Compartido con médicos'}
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -299,7 +318,7 @@ export function PatientApp({
                         <span className="timeline-doctor">Centro de Diagnóstico Sur</span>
                       </div>
                     </div>
-                  </div>
+                  </div>         </div>
                 </>
               )}
 
