@@ -1,4 +1,4 @@
-import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut, QrCode, Sun, Moon, Globe } from 'lucide-react';
+import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut, QrCode, Sun, Moon, Globe, Search, Building2, MapPin } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceArea } from 'recharts';
 import { useTranslation } from 'react-i18next';
@@ -37,6 +37,8 @@ export function PatientApp({
   const [isPreConsultOpen, setIsPreConsultOpen] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
   const [isQrOpen, setIsQrOpen] = useState(false);
+  const [schedulingType, setSchedulingType] = useState<'DOCTOR' | 'LAB'>('DOCTOR');
+  const [selectedPlace, setSelectedPlace] = useState('');
   const [labData, setLabData] = useState([
     { date: 'Oct', glucosa: 88 },
     { date: 'Nov', glucosa: 92 },
@@ -105,10 +107,12 @@ export function PatientApp({
 
   const confirmAppointment = () => {
     setIsScheduling(false);
-    // Mock the new appointment being added to the timeline
+    const title = schedulingType === 'DOCTOR' ? (selectedPlace || 'Consulta Médica') : (selectedPlace || 'Estudio Clínico');
+    const subtitle = schedulingType === 'DOCTOR' ? 'Profesional • 28 Mar, 10:00' : 'Ctro. Diagnóstico • 30 Mar, 09:30';
+    
     setUploadedFiles(prev => [{
-      name: 'Consulta Dermatológica',
-      size: 'Dra. Méndez • 28 Mar, 10:00',
+      name: title,
+      size: subtitle,
       url: '',
       isImage: false,
       isAppointment: true
@@ -468,53 +472,111 @@ export function PatientApp({
           <div className="preview-lightbox" onClick={() => setIsScheduling(false)}>
             <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
               <div className="sheet-handle"></div>
-              <h3 style={{ marginBottom: '1.5rem', fontWeight: 700, fontSize: '1.15rem' }}>Agendar Nueva Cita</h3>
+              <h3 style={{ marginBottom: '1rem', fontWeight: 700, fontSize: '1.2rem' }}>Agendar Nueva Cita</h3>
               
-              <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Especialidad o Profesional</label>
-                <select className="schedule-select">
-                  <option>Dra. Ana Ríos (Tu médica actual)</option>
-                  <option>Dermatología - Buscar profesional</option>
-                  <option>Clínica Médica - Buscar profesional</option>
-                </select>
+              <div className="segment-control" style={{ marginBottom: '1.5rem' }}>
+                <button 
+                  className={`segment-btn ${schedulingType === 'DOCTOR' ? 'active' : ''}`} 
+                  onClick={() => { setSchedulingType('DOCTOR'); setSelectedPlace(''); }}
+                >
+                  Médico
+                </button>
+                <button 
+                  className={`segment-btn ${schedulingType === 'LAB' ? 'active' : ''}`} 
+                  onClick={() => { setSchedulingType('LAB'); setSelectedPlace(''); }}
+                >
+                  Centro de Salud
+                </button>
               </div>
 
-              <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Marzo 2026</label>
-                <div className="date-selector">
-                  <div className="date-card">
-                    <span className="day">Mie</span>
-                    <span className="date">25</span>
-                  </div>
-                  <div className="date-card">
-                    <span className="day">Jue</span>
-                    <span className="date">26</span>
-                  </div>
-                  <div className="date-card active">
-                    <span className="day">Vie</span>
-                    <span className="date">27</span>
-                  </div>
-                  <div className="date-card">
-                    <span className="day">Lun</span>
-                    <span className="date">30</span>
+              {schedulingType === 'DOCTOR' ? (
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Especialidad o Profesional</label>
+                  <div style={{ position: 'relative' }}>
+                    <Search className="input-icon" size={16} />
+                    <select 
+                      className="schedule-select" 
+                      style={{ paddingLeft: '2.5rem' }}
+                      value={selectedPlace}
+                      onChange={(e) => setSelectedPlace(e.target.value)}
+                    >
+                      <option value="">Seleccionar profesional...</option>
+                      <option value="Dra. Ana Ríos">Dra. Ana Ríos (Traumatología)</option>
+                      <option value="Dr. Martín Gómez">Dr. Martín Gómez (Cardiología)</option>
+                      <option value="Dra. Elena Méndez">Dra. Elena Méndez (Dermatología)</option>
+                    </select>
                   </div>
                 </div>
-              </div>
-
-              <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Horario disponible</label>
-                <div className="time-selector">
-                  <span className="time-badge">09:00</span>
-                  <span className="time-badge active">10:00</span>
-                  <span className="time-badge disabled">10:30</span>
-                  <span className="time-badge">11:00</span>
-                  <span className="time-badge disabled">11:30</span>
-                  <span className="time-badge">14:00</span>
+              ) : (
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Elegir Centro de Diagnóstico</label>
+                  <div style={{ position: 'relative' }}>
+                    <Building2 className="input-icon" size={16} />
+                    <select 
+                      className="schedule-select" 
+                      style={{ paddingLeft: '2.5rem' }}
+                      value={selectedPlace}
+                      onChange={(e) => setSelectedPlace(e.target.value)}
+                    >
+                      <option value="">Seleccionar centro...</option>
+                      <option value="Centro de Diagnóstico Sur">Centro de Diagnóstico Sur (Laboratorio/Rayos)</option>
+                      <option value="Sanatorio Otamendi">Sanatorio Otamendi (Imágenes Complejas)</option>
+                      <option value="Laboratorio Rossi">Laboratorio Rossi (Análisis/Genética)</option>
+                    </select>
+                  </div>
+                  {selectedPlace && (
+                    <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: 'var(--accent-primary)' }}>
+                      <MapPin size={12} /> <span style={{ textDecoration: 'underline' }}>Ver ubicación en mapa</span>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
-              <button className="btn btn-primary btn-block" style={{ marginTop: '1rem', padding: '1rem' }} onClick={confirmAppointment}>
-                Confirmar Turno Seguro
+              {selectedPlace && (
+                <>
+                  <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Días Disponibles - Abril 2026</label>
+                    <div className="date-selector">
+                      <div className="date-card">
+                        <span className="day">Mie</span>
+                        <span className="date">01</span>
+                      </div>
+                      <div className="date-card">
+                        <span className="day">Jue</span>
+                        <span className="date">02</span>
+                      </div>
+                      <div className="date-card active">
+                        <span className="day">Vie</span>
+                        <span className="date">03</span>
+                      </div>
+                      <div className="date-card">
+                        <span className="day">Lun</span>
+                        <span className="date">06</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Horarios para {selectedPlace}</label>
+                    <div className="time-selector">
+                      <span className="time-badge">08:00</span>
+                      <span className="time-badge active">09:30</span>
+                      <span className="time-badge disabled">10:00</span>
+                      <span className="time-badge">11:15</span>
+                      <span className="time-badge">14:30</span>
+                      <span className="time-badge">16:00</span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <button 
+                className={`btn btn-block ${selectedPlace ? 'btn-primary' : 'btn-outline'}`} 
+                style={{ marginTop: '1rem', padding: '1rem', opacity: selectedPlace ? 1 : 0.5 }}
+                disabled={!selectedPlace}
+                onClick={confirmAppointment}
+              >
+                Confirmar Turno en {selectedPlace || '...'}
               </button>
             </div>
           </div>
