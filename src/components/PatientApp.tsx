@@ -173,9 +173,8 @@ export function PatientApp({
         {/* Mobile Header */}
         <div className="mobile-header">
           <div className="patient-profile">
-            <div className="patient-avatar-lg">{userName.substring(0, 2).toUpperCase()}</div>
             <div>
-              <h2>{t('patient.hello', { name: userName })}</h2>
+              <h2>{t('patient.hello', { name: userName.split(' ')[0] })}</h2>
               <p>{t('patient.healthUpToDate')}</p>
             </div>
           </div>
