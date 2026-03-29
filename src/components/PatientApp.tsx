@@ -1,4 +1,4 @@
-import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut, QrCode } from 'lucide-react';
+import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut, QrCode, Sun, Moon, Globe } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceArea } from 'recharts';
 import { useTranslation } from 'react-i18next';
@@ -10,8 +10,18 @@ type UploadedFile = {
   isImage: boolean;
 };
 
-export function PatientApp({ userName = 'Gonzalo', onLogout }: { userName?: string, onLogout?: () => void }) {
-  const { t } = useTranslation();
+export function PatientApp({ 
+  userName = 'Gonzalo', 
+  onLogout,
+  theme,
+  onThemeToggle
+}: { 
+  userName?: string, 
+  onLogout?: () => void,
+  theme: 'light' | 'dark',
+  onThemeToggle: () => void
+}) {
+  const { t, i18n } = useTranslation();
   const [docRiosAccess, setDocRiosAccess] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -126,6 +136,12 @@ export function PatientApp({ userName = 'Gonzalo', onLogout }: { userName?: stri
               <p>{t('patient.healthUpToDate')}</p>
             </div>
           </div>
+          <button className="icon-btn" onClick={() => i18n.changeLanguage(i18n.language === 'es' ? 'en' : 'es')} style={{ marginRight: '0.2rem' }}>
+            <Globe color="var(--text-secondary)" size={22} />
+          </button>
+          <button className="icon-btn" onClick={onThemeToggle} style={{ marginRight: '0.5rem' }}>
+            {theme === 'light' ? <Moon color="var(--text-secondary)" size={22} /> : <Sun color="var(--text-secondary)" size={22} />}
+          </button>
           <button className="icon-btn" onClick={() => setIsQrOpen(true)} style={{ marginRight: '0.5rem' }}>
             <QrCode color="var(--accent-primary)" size={24} />
           </button>

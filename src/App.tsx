@@ -73,7 +73,7 @@ function App() {
     </div>
   );
 
-  const themeToggleFloating = (role === 'PATIENT' || !isAuthenticated) ? themeToggleBtn : null;
+  const themeToggleFloating = (!isAuthenticated) ? themeToggleBtn : null;
 
   if (!isAuthenticated || !role) {
     return (
@@ -88,7 +88,12 @@ function App() {
     <>
       {themeToggleFloating}
       {role === 'PATIENT' ? (
-        <PatientApp userName={userName} onLogout={handleLogout} />
+        <PatientApp 
+          userName={userName} 
+          onLogout={handleLogout} 
+          theme={theme}
+          onThemeToggle={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+        />
       ) : (
         <div className="app-container">
           <Sidebar 
