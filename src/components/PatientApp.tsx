@@ -1,6 +1,5 @@
-import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut, QrCode, Sun, Moon, Globe, Building2, MapPin, Stethoscope, Star } from 'lucide-react';
+import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut, QrCode, Sun, Moon, Globe, Building2, MapPin, Stethoscope, Star, Bell, Map } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceArea } from 'recharts';
 import { useTranslation } from 'react-i18next';
 
 type UploadedFile = {
@@ -8,6 +7,10 @@ type UploadedFile = {
   size: string;
   url: string;
   isImage: boolean;
+  uploader?: string;
+  uploadDate?: string;
+  center?: string;
+  type?: 'INST' | 'USER';
 };
 
 export function PatientApp({ 
@@ -31,7 +34,8 @@ export function PatientApp({
   const [activeTab, setActiveTab] = useState<'HOME' | 'ESTUDIOS' | 'CITAS' | 'PRIVACIDAD'>('HOME');
   
   // Novedades MVP UX:
-  const [estudiosSubTab, setEstudiosSubTab] = useState<'ARCHIVOS' | 'TENDENCIAS'>('ARCHIVOS');
+  const [estudiosSubTab, setEstudiosSubTab] = useState<'HISTORIAL' | 'ADJUNTAR'>('HISTORIAL');
+  const [studyName, setStudyName] = useState('');
   const [isOcrScanning, setIsOcrScanning] = useState(false);
   const [isSymptomOpen, setIsSymptomOpen] = useState(false);
   const [isPreConsultOpen, setIsPreConsultOpen] = useState(false);
@@ -42,13 +46,13 @@ export function PatientApp({
   const [selectedPlace, setSelectedPlace] = useState('');
   const [selectedDay, setSelectedDay] = useState('03');
   const [selectedHour, setSelectedHour] = useState('09:30');
-  const [labData, setLabData] = useState([
-    { date: 'Oct', glucosa: 88 },
-    { date: 'Nov', glucosa: 92 },
-    { date: 'Dic', glucosa: 104 },
-    { date: 'Ene', glucosa: 110 },
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  const [mapLocation, setMapLocation] = useState('');
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: 'Estudio Recibido', desc: 'Hospital Alemán subió tu Ecografía Abdominal.', time: 'Hace 5m', unread: true },
+    { id: 2, title: 'Recordatorio Turno', desc: 'Mañana 09:30hs con Dra. Ana Ríos.', time: 'Hace 2h', unread: false }
   ]);
-
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Esc key logic to close the lightbox
@@ -84,11 +88,15 @@ export function PatientApp({
         setTimeout(() => {
           setIsUploading(false);
           setUploadedFiles(prev => [{
-            name: file.name,
+            name: studyName || file.name,
             size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
-            url: fileUrl,
-            isImage
+             url: fileUrl,
+            isImage,
+            uploadDate: new Date().toLocaleDateString('es-AR', { day: '2-digit', month: 'short' }),
+            uploader: 'Usted'
           }, ...prev]);
+          setStudyName('');
+          setEstudiosSubTab('HISTORIAL');
         }, 900);
       }
       setUploadProgress(progress);
@@ -102,15 +110,23 @@ export function PatientApp({
     setTimeout(() => {
       setIsOcrScanning(false);
       setActiveTab('ESTUDIOS');
-      setEstudiosSubTab('TENDENCIAS');
+      setEstudiosSubTab('HISTORIAL');
       // Append the scanned value magically
-      setLabData(prev => [...prev, { date: 'Hoy', glucosa: 85 }]);
+      setUploadedFiles(prev => [{
+        name: studyName || 'Escaneo Clínico',
+        size: '0.8 MB',
+        url: '',
+        isImage: true,
+        uploadDate: 'Hoy',
+        uploader: 'Usted'
+      }, ...prev]);
+      setStudyName('');
     }, 2500);
   };
 
-  const institutionalFiles = [
-    { name: 'Ecografía Abdominal', size: '2.4 MB', url: '', date: '25 Mar', center: 'Hospital Alemán', type: 'INST' },
-    { name: 'Radiografía de Tórax', size: '1.1 MB', url: '', date: '10 Feb', center: 'Sanatorio Otamendi', type: 'INST' }
+  const institutionalFiles: UploadedFile[] = [
+    { name: 'Ecografía Abdominal', size: '2.4 MB', url: '', isImage: false, uploadDate: '25 Mar', center: 'Hospital Alemán', type: 'INST' },
+    { name: 'Radiografía de Tórax', size: '1.1 MB', url: '', isImage: false, uploadDate: '10 Feb', center: 'Sanatorio Otamendi', type: 'INST' }
   ];
 
   const renderStars = (rating: number) => {
@@ -163,6 +179,12 @@ export function PatientApp({
               <p>{t('patient.healthUpToDate')}</p>
             </div>
           </div>
+          <button className="icon-btn" onClick={() => setIsNotifOpen(true)} style={{ marginRight: '0.2rem', position: 'relative' }}>
+            <Bell color="var(--text-secondary)" size={22} />
+            {notifications.some(n => n.unread) && (
+              <span className="notification-dot"></span>
+            )}
+          </button>
           <button className="icon-btn" onClick={() => i18n.changeLanguage(i18n.language === 'es' ? 'en' : 'es')} style={{ marginRight: '0.2rem' }}>
             <Globe color="var(--text-secondary)" size={22} />
           </button>
@@ -184,11 +206,7 @@ export function PatientApp({
             <>
               {/* Action Buttons */}
               <div className="mobile-actions" style={{ padding: '0 0 1.5rem 0', backgroundColor: 'transparent' }}>
-                <button className="action-btn upload-btn" onClick={handleUploadClick}>
-                  <Upload size={20} />
-                  <span>{t('patient.uploadStudy')}</span>
-                </button>
-                <button className="action-btn outline-btn" onClick={() => setIsScheduling(true)}>
+                <button className="action-btn btn-primary" style={{ flex: 1, padding: '1rem' }} onClick={() => setIsScheduling(true)}>
                   <Calendar size={20} />
                   <span>{t('patient.scheduleAppt')}</span>
                 </button>
@@ -201,8 +219,8 @@ export function PatientApp({
                 </div>
                 
                 <div className="timeline">
-                  {uploadedFiles.slice(0, 3).map((file, idx) => {
-                    const isAppt = (file as any).isAppointment;
+                  {uploadedFiles.slice(0, 3).map((file: any, idx) => {
+                    const isAppt = file.isAppointment;
                     return (
                       <div key={idx} className="timeline-item timeline-uploaded">
                         <div className={`timeline-icon ${isAppt ? 'bg-green' : 'bg-blue'}`}>
@@ -223,8 +241,8 @@ export function PatientApp({
                               </button>
                             )}
                           </div>
-                          <p style={{ marginTop: '0.25rem' }}>{isAppt ? 'Turno Confirmado' : 'Subido exitosamente • Pendiente'}</p>
-                          <span className="timeline-doctor">{isAppt ? 'Agendado hoy' : 'Compartido con Médicos Activos'}</span>
+                          <p style={{ marginTop: '0.25rem' }}>{isAppt ? 'Turno Confirmado' : `Subido por ${file.uploader || 'Centro'} • ${file.uploadDate || 'Hoy'}`}</p>
+                          <span className="timeline-doctor">{isAppt ? 'Agendado hoy' : (file.type === 'INST' ? 'Validado por Institución' : 'Compartido con Médicos Activos')}</span>
                         </div>
                       </div>
                     );
@@ -252,31 +270,24 @@ export function PatientApp({
 
               <div className="segment-control">
                 <button 
-                  className={`segment-btn ${estudiosSubTab === 'ARCHIVOS' ? 'active' : ''}`} 
-                  onClick={() => setEstudiosSubTab('ARCHIVOS')}
+                  className={`segment-btn ${estudiosSubTab === 'HISTORIAL' ? 'active' : ''}`} 
+                  onClick={() => setEstudiosSubTab('HISTORIAL')}
                 >
                   <FileText size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
-                  {t('patient.liveFiles')}
+                  HISTORIAL
                 </button>
                 <button 
-                  className={`segment-btn ${estudiosSubTab === 'TENDENCIAS' ? 'active' : ''}`} 
-                  onClick={() => setEstudiosSubTab('TENDENCIAS')}
+                  className={`segment-btn ${estudiosSubTab === 'ADJUNTAR' ? 'active' : ''}`} 
+                  onClick={() => setEstudiosSubTab('ADJUNTAR')}
                 >
-                  <Activity size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
-                  {t('patient.trends')}
+                  <Upload size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
+                  ADJUNTAR
                 </button>
               </div>
 
-              {estudiosSubTab === 'ARCHIVOS' && (
+              {estudiosSubTab === 'HISTORIAL' && (
                 <>
-                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                    <button className="btn btn-primary" style={{ flex: 1, padding: '0.6rem' }} onClick={handleUploadClick}>
-                      <Upload size={14} /> {t('patient.uploadPDF')}
-                    </button>
-                    <button className="btn btn-outline" style={{ flex: 1, padding: '0.6rem', color: '#10b981', borderColor: '#10b981' }} onClick={handleOcrScan}>
-                      <Camera size={14} /> {t('patient.scanPaper')}
-                    </button>
-                                  <div className="timeline">
+                  <div className="timeline">
                     {/* Synchronized from Centers */}
                     <div style={{ padding: '0.8rem', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', marginBottom: '1rem', border: '1px dotted var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <Activity size={14} className="pulse" color="var(--accent-primary)" />
@@ -303,57 +314,53 @@ export function PatientApp({
                               <Eye size={14} /> {t('patient.view')}
                             </button>
                           </div>
-                          <p style={{ marginTop: '0.25rem' }}>{file.type === 'INST' ? 'Validado por Institución' : 'Subido personalmente'}</p>
+                          <p style={{ marginTop: '0.25rem' }}>{file.type === 'INST' ? `Validado por ${file.center}` : `Subido por ${file.uploader || 'Usted'} • ${file.uploadDate || 'Hoy'}`}</p>
                           <span className="timeline-doctor">
                             {file.type === 'INST' ? 'Firmado digitalmente • Historia Clínica Única' : 'Nube segura • Compartido con médicos'}
                           </span>
                         </div>
                       </div>
                     ))}
-                    <div className="timeline-item">
-                      <div className="timeline-icon"><FileText size={14} /></div>
-                      <div className="timeline-content">
-                        <h4>Análisis de Laboratorio - Sangre</h4>
-                        <p>12 Enero, 2026</p>
-                        <span className="timeline-doctor">Centro de Diagnóstico Sur</span>
-                      </div>
-                    </div>
-                  </div>         </div>
+                  </div>
                 </>
               )}
 
-              {estudiosSubTab === 'TENDENCIAS' && (
-                <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1.5rem 1rem', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                    <div>
-                      <h4 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Glucemia en Ayunas</h4>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Mg/dL (Últimos 6 meses)</p>
-                    </div>
-                    <button className="icon-btn" onClick={() => setShowGlossary(true)} style={{ backgroundColor: '#e0f2fe', color: 'var(--accent-primary)', padding: '0.4rem', borderRadius: '50%' }}>
-                      <AlertCircle size={18} />
+              {estudiosSubTab === 'ADJUNTAR' && (
+                <div style={{ padding: '1rem 0' }}>
+                  <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>Nombre del Estudio (Obligatorio)</label>
+                    <input 
+                      type="text" 
+                      className="auth-input" 
+                      placeholder="Ej: Análisis de Sangre, Ecografía..." 
+                      value={studyName}
+                      onChange={(e) => setStudyName(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <button 
+                      className={`btn ${studyName ? 'btn-primary' : 'btn-outline'}`} 
+                      style={{ padding: '1rem', opacity: studyName ? 1 : 0.5 }}
+                      disabled={!studyName}
+                      onClick={handleUploadClick}
+                    >
+                      <Upload size={18} /> Subir Archivo PDF/Imagen
+                    </button>
+                    <button 
+                      className={`btn ${studyName ? 'btn-outline' : 'btn-outline'}`} 
+                      style={{ padding: '1rem', color: studyName ? '#10b981' : '#ccc', borderColor: studyName ? '#10b981' : '#ccc', opacity: studyName ? 1 : 0.5 }}
+                      disabled={!studyName}
+                      onClick={handleOcrScan}
+                    >
+                      <Camera size={18} /> Sacar Foto / Escanear Papel
                     </button>
                   </div>
-
-                  <div style={{ width: '100%', height: '220px' }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={labData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} domain={[70, 130]} />
-                        {/* Zonas de color: Verde (Normal), Amarillo (Pre), Rojo (Alto) */}
-                        <ReferenceArea y1={70} y2={100} fill="#d1fae5" fillOpacity={0.3} />
-                        <ReferenceArea y1={100} y2={125} fill="#fef3c7" fillOpacity={0.4} />
-                        <ReferenceArea y1={125} y2={130} fill="#fee2e2" fillOpacity={0.3} />
-                        
-                        <Line type="monotone" dataKey="glucosa" stroke="var(--text-primary)" strokeWidth={3} dot={{ r: 5, fill: 'var(--bg-primary)', strokeWidth: 2 }} activeDot={{ r: 7, fill: 'var(--accent-primary)' }} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  {labData.length > 4 && (
-                    <div style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#d1fae5', color: '#059669', borderRadius: '8px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
-                      <CheckCircle size={16} /> Gran trabajo! Tu glucosa bajó tras la dieta.
-                    </div>
+                  
+                  {!studyName && (
+                    <p style={{ fontSize: '0.75rem', color: 'var(--danger)', marginTop: '1rem', textAlign: 'center' }}>
+                      * Debes ingresar un nombre para habilitar la subida
+                    </p>
                   )}
                 </div>
               )}
@@ -615,7 +622,7 @@ export function PatientApp({
 
                   {selectedPlace && (
                     <div style={{ marginTop: '-0.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: 'var(--accent-primary)' }}>
-                      <MapPin size={12} /> <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Ver ubicación del consultorio</span>
+                      <MapPin size={12} /> <span style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => { setMapLocation(selectedPlace); setIsMapOpen(true); }}>Ver ubicación del consultorio</span>
                     </div>
                   )}
                 </>
@@ -638,7 +645,7 @@ export function PatientApp({
                   </div>
                   {selectedPlace && (
                     <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: 'var(--accent-primary)' }}>
-                      <MapPin size={12} /> <span style={{ textDecoration: 'underline' }}>Ver ubicación en mapa</span>
+                      <MapPin size={12} /> <span style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => { setMapLocation(selectedPlace); setIsMapOpen(true); }}>Ver ubicación en mapa</span>
                     </div>
                   )}
                 </div>
@@ -852,14 +859,71 @@ export function PatientApp({
                 style={{ marginTop: '1.5rem' }}
                 onClick={() => setIsQrOpen(false)}
               >
-                {t('patient.view')}
+                Cerrar
               </button>
             </div>
           </div>
         )}
+
+        {/* Notifications Drawer */}
+        {isNotifOpen && (
+          <div className="modal-overlay" onClick={() => setIsNotifOpen(false)}>
+            <div className="modal-content" style={{ maxHeight: '80%', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Bell size={20} color="var(--accent-primary)" /> Notificaciones</h3>
+                <button className="icon-btn" onClick={() => setIsNotifOpen(false)}><X size={20} /></button>
+              </div>
+              <div style={{ overflowY: 'auto' }}>
+                {notifications.map(n => (
+                  <div key={n.id} style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', position: 'relative', backgroundColor: n.unread ? 'rgba(14, 165, 233, 0.05)' : 'transparent' }}>
+                    <h4 style={{ fontSize: '0.9rem', marginBottom: '0.2rem', color: n.unread ? 'var(--accent-primary)' : 'inherit' }}>{n.title}</h4>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>{n.desc}</p>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.4rem', display: 'block' }}>{n.time}</span>
+                    {n.unread && <div style={{ position: 'absolute', top: '1.2rem', right: '1rem', width: '6px', height: '6px', backgroundColor: 'var(--accent-primary)', borderRadius: '50%' }}></div>}
+                  </div>
+                ))}
+              </div>
+              <button className="btn btn-outline btn-block" style={{ marginTop: '1.5rem' }} onClick={() => { 
+                setNotifications(prev => prev.map(n => ({...n, unread: false})));
+                setIsNotifOpen(false); 
+              }}>
+                Marcar todas como leídas
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Map Simulation Modal */}
+        {isMapOpen && (
+          <div className="modal-overlay" onClick={() => setIsMapOpen(false)}>
+            <div className="modal-content" style={{ padding: '0', overflow: 'hidden', height: '500px' }} onClick={e => e.stopPropagation()}>
+              <div style={{ padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
+                <div>
+                  <h3 style={{ fontSize: '1rem' }}>Ubicación</h3>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{mapLocation}</p>
+                </div>
+                <button className="icon-btn" onClick={() => setIsMapOpen(false)}><X size={20} /></button>
+              </div>
+              <div style={{ flex: 1, backgroundColor: '#e5e7eb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                <Map size={48} color="var(--text-secondary)" style={{ opacity: 0.3 }} />
+                <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Cargando Google Maps...</p>
+                
+                {/* Simulated Map Pin */}
+                <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                  <MapPin size={32} color="var(--danger)" fill="var(--danger)" />
+                  <div style={{ height: '4px', width: '4px', backgroundColor: 'black', borderRadius: '50%', margin: '2px auto', opacity: 0.2 }}></div>
+                </div>
+
+                <div style={{ position: 'absolute', bottom: '1.5rem', left: '1.5rem', right: '1.5rem' }}>
+                  <button className="btn btn-primary btn-block" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }} onClick={() => alert("Abriendo Google Maps en tu dispositivo...")}>
+                    Iniciar Navegación GPS
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-
-
     </div>
   );
 }

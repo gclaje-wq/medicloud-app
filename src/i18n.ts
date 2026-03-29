@@ -55,7 +55,8 @@ const resources = {
         view: "Ver",
         qrShare: "Compartir Historial",
         qrDesc: "Mostrá este código al profesional para darle acceso inmediato a tus estudios.",
-        qrWaiting: "Esperando escaneo..."
+        qrWaiting: "Esperando escaneo...",
+        reviews: "reseñas"
       }
     }
   },
@@ -112,7 +113,8 @@ const resources = {
         view: "View",
         qrShare: "Share Medical History",
         qrDesc: "Show this code to the professional to give them immediate access to your studies.",
-        qrWaiting: "Waiting for scan..."
+        qrWaiting: "Waiting for scan...",
+        reviews: "reviews"
       }
     }
   }
