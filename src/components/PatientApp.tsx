@@ -233,12 +233,12 @@ export function PatientApp({
                                 className="btn-view-study" 
                                 onClick={() => setPreviewFile(file)}
                               >
-                                <Eye size={14} /> Ver
+                                <Eye size={14} /> {t('patient.view')}
                               </button>
                             )}
                           </div>
-                          <p style={{ marginTop: '0.25rem' }}>{isAppt ? 'Turno Confirmado' : `Subido por ${file.uploader || 'Centro'} • ${file.uploadDate || 'Hoy'}`}</p>
-                          <span className="timeline-doctor">{isAppt ? 'Agendado hoy' : (file.type === 'INST' ? 'Validado por Institución' : 'Compartido con Médicos Activos')}</span>
+                          <p style={{ marginTop: '0.25rem' }}>{isAppt ? t('patient.confirmaedAppt') : t('patient.uploadedBy', { uploader: file.uploader || t('patient.you'), date: file.uploadDate || t('patient.today') })}</p>
+                          <span className="timeline-doctor">{isAppt ? t('patient.scheduledToday') : (file.type === 'INST' ? t('patient.officialBadge') : t('patient.secureCloud'))}</span>
                         </div>
                       </div>
                     );
@@ -262,14 +262,14 @@ export function PatientApp({
                   onClick={() => setEstudiosSubTab('HISTORIAL')}
                 >
                   <FileText size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
-                  HISTORIAL
+                  {t('patient.historyTab')}
                 </button>
                 <button 
                   className={`segment-btn ${estudiosSubTab === 'ADJUNTAR' ? 'active' : ''}`} 
                   onClick={() => setEstudiosSubTab('ADJUNTAR')}
                 >
                   <Upload size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
-                  ADJUNTAR
+                  {t('patient.uploadTab')}
                 </button>
               </div>
 
@@ -279,7 +279,7 @@ export function PatientApp({
                     {/* Synchronized from Centers */}
                     <div style={{ padding: '0.8rem', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', marginBottom: '1rem', border: '1px dotted var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <Activity size={14} className="pulse" color="var(--accent-primary)" />
-                      <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Sincronizando con Centros Externos...</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{t('patient.syncing')}</span>
                     </div>
 
                     {[...uploadedFiles.filter(f => !(f as any).isAppointment), ...institutionalFiles].map((file: any, idx) => (
@@ -293,7 +293,7 @@ export function PatientApp({
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                 <h4>{file.name}</h4>
                                 {file.type === 'INST' && (
-                                  <span style={{ fontSize: '0.6rem', backgroundColor: 'var(--success)', color: 'white', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>OFICIAL</span>
+                                  <span style={{ fontSize: '0.6rem', backgroundColor: 'var(--success)', color: 'white', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>{t('patient.officialTag')}</span>
                                 )}
                               </div>
                               <span style={{fontSize:'0.7rem', color:'var(--text-secondary)'}}>{file.size} {file.center ? `• ${file.center}` : ''}</span>
@@ -316,11 +316,11 @@ export function PatientApp({
               {estudiosSubTab === 'ADJUNTAR' && (
                 <div style={{ padding: '1rem 0' }}>
                   <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>Nombre del Estudio (Obligatorio)</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>{t('patient.studyNameLabel')}</label>
                     <input 
                       type="text" 
                       className="auth-input" 
-                      placeholder="Ej: Análisis de Sangre, Ecografía..." 
+                      placeholder={t('patient.studyNamePlaceholder')} 
                       value={studyName}
                       onChange={(e) => setStudyName(e.target.value)}
                     />
@@ -333,7 +333,7 @@ export function PatientApp({
                       disabled={!studyName}
                       onClick={handleUploadClick}
                     >
-                      <Upload size={18} /> Subir Archivo PDF/Imagen
+                      <Upload size={18} /> {t('patient.uploadFileBtn')}
                     </button>
                     <button 
                       className={`btn ${studyName ? 'btn-outline' : 'btn-outline'}`} 
@@ -341,13 +341,13 @@ export function PatientApp({
                       disabled={!studyName}
                       onClick={handleOcrScan}
                     >
-                      <Camera size={18} /> Sacar Foto / Escanear Papel
+                      <Camera size={18} /> {t('patient.scanPaperBtn')}
                     </button>
                   </div>
                   
                   {!studyName && (
                     <p style={{ fontSize: '0.75rem', color: 'var(--danger)', marginTop: '1rem', textAlign: 'center' }}>
-                      * Debes ingresar un nombre para habilitar la subida
+                      {t('patient.mandatoryNote')}
                     </p>
                   )}
                 </div>
@@ -371,13 +371,13 @@ export function PatientApp({
               <div style={{ backgroundColor: 'var(--accent-primary-transparent, rgba(14, 165, 233, 0.15))', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem', border: '1px solid var(--accent-primary)', display: 'flex', alignItems: 'flex-start', gap: '0.75rem', cursor: 'pointer' }} onClick={() => setIsPreConsultOpen(true)}>
                 <AlertCircle size={20} color="var(--accent-primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
                 <div>
-                  <h5 style={{ color: 'var(--accent-primary)', fontSize: '0.9rem', marginBottom: '0.2rem', fontWeight: 700 }}>Turno mañana: Dra. Ríos</h5>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}>¿Qué querés consultarle mañana? Anotá tus prioridades acá para la Dra.</p>
+                  <h5 style={{ color: 'var(--accent-primary)', fontSize: '0.9rem', marginBottom: '0.2rem', fontWeight: 700 }}>{t('patient.preConsultTitle')}</h5>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}>{t('patient.preConsultDesc')}</p>
                 </div>
               </div>
 
               {uploadedFiles.filter(f => (f as any).isAppointment).length === 0 ? (
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic', marginBottom: '2rem' }}>No tenés turnos futuros agendados.</p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic', marginBottom: '2rem' }}>{t('patient.noAppts')}</p>
               ) : (
                 <div className="timeline" style={{ marginBottom: '2rem' }}>
                   {uploadedFiles.filter(f => (f as any).isAppointment).map((file, idx) => (
@@ -399,9 +399,9 @@ export function PatientApp({
                 <div className="timeline-item">
                   <div className="timeline-icon bg-green"><Calendar size={14} /></div>
                   <div className="timeline-content">
-                    <h4>Consulta Cardiológica</h4>
-                    <p>15 de Marzo, 2026 • Finalizada</p>
-                    <span className="timeline-doctor" style={{ backgroundColor: '#fee2e2', color: '#dc2626'}}>Acceso Revocado (Dr. Gómez)</span>
+                    <h4>{t('patient.mriPlaceholder')}</h4>
+                    <p>15 de Marzo, 2026 • {t('patient.mriStatus')}</p>
+                    <span className="timeline-doctor" style={{ backgroundColor: '#fee2e2', color: '#dc2626'}}>{t('patient.revokedAccess')} (Dr. Gómez)</span>
                     <div className="small-attachment" style={{ cursor: 'pointer' }} onClick={() => alert("Simulación de PDF: Receta_Aspirina.pdf")}>
                       <FileText size={12} />
                       <span>Receta_Aspirina.pdf</span>
@@ -517,7 +517,7 @@ export function PatientApp({
                 paddingBottom: '0.5rem',
                 borderBottom: '1px solid var(--border-color)'
               }}>
-                <h3 style={{ fontWeight: 700, fontSize: '1.2rem', margin: 0 }}>Agendar Nueva Cita</h3>
+                <h3 style={{ fontWeight: 700, fontSize: '1.2rem', margin: 0 }}>{t('patient.bookingTitle')}</h3>
                 <button className="icon-btn" onClick={() => setIsScheduling(false)} style={{ padding: '0.4rem' }}>
                   <X size={20} />
                 </button>
@@ -528,20 +528,20 @@ export function PatientApp({
                   className={`segment-btn ${schedulingType === 'DOCTOR' ? 'active' : ''}`} 
                   onClick={() => { setSchedulingType('DOCTOR'); setSelectedPlace(''); }}
                 >
-                  Médico
+                  {t('patient.doctorTab')}
                 </button>
                 <button 
                   className={`segment-btn ${schedulingType === 'LAB' ? 'active' : ''}`} 
                   onClick={() => { setSchedulingType('LAB'); setSelectedPlace(''); }}
                 >
-                  Centro de Salud
+                  {t('patient.centerTab')}
                 </button>
               </div>
 
               {schedulingType === 'DOCTOR' ? (
                 <>
                   <div className="form-group" style={{ marginBottom: '1.2rem' }}>
-                    <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Elegir Especialidad</label>
+                    <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>{t('patient.chooseSpecialty')}</label>
                     <div style={{ position: 'relative' }}>
                       <Stethoscope className="input-icon" size={16} />
                       <select 
@@ -553,23 +553,24 @@ export function PatientApp({
                           setSelectedPlace(''); 
                         }}
                       >
-                        <option value="">¿A qué especialidad buscás?</option>
-                        <option value="Traumatología">Traumatología</option>
-                        <option value="Cardiología">Cardiología</option>
-                        <option value="Dermatología">Dermatología</option>
-                        <option value="Clínica Médica">Clínica Médica</option>
+                        <option value="">{t('patient.specialtyPlaceholder')}</option>
+                        <option value="Traumatología">{t('patient.specialtyTrauma')}</option>
+                        <option value="Cardiología">{t('patient.specialtyCardio')}</option>
+                        <option value="Dermatología">{t('patient.specialtyDerma')}</option>
+                        <option value="Odontología">{t('patient.specialtyOdon')}</option>
+                        <option value="Clínica Médica">{t('nav.home') === 'Home' ? 'General Medicine' : 'Clínica Médica'}</option>
                       </select>
                     </div>
                   </div>
 
                   {selectedSpecialty && (
                     <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Profesionales en {selectedSpecialty}</label>
+                      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>{t('patient.professionalsIn', { specialty: selectedSpecialty })}</label>
                       <div className="doctor-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {[
-                          { name: 'Dra. Ana Ríos', desc: 'Especialista Senior', rating: 4.8, reviews: 124, next: 'Hoy 16:00' },
-                          { name: 'Dr. Julián Pérez', desc: 'Post-doctorado Harvard', rating: 4.9, reviews: 89, next: 'Mañana 09:00' },
-                          { name: 'Dr. Martín Gómez', desc: 'Jefe de área', rating: 4.3, reviews: 215, next: 'Vie 03 Abr' }
+                          { name: 'Dra. Ana Ríos', desc: t('nav.home') === 'Home' ? 'Senior Specialist' : 'Especialista Senior', rating: 4.8, reviews: 124, next: t('nav.home') === 'Home' ? 'Today 16:00' : 'Hoy 16:00' },
+                          { name: 'Dr. Julián Pérez', desc: t('nav.home') === 'Home' ? 'Harvard Post-doc' : 'Post-doctorado Harvard', rating: 4.9, reviews: 89, next: t('nav.home') === 'Home' ? 'Tomorrow 09:00' : 'Mañana 09:00' },
+                          { name: 'Dr. Martín Gómez', desc: t('nav.home') === 'Home' ? 'Chief of Staff' : 'Jefe de área', rating: 4.3, reviews: 215, next: t('nav.home') === 'Home' ? 'Fri 03 Apr' : 'Vie 03 Abr' }
                         ].filter(d => selectedSpecialty === 'Traumatología' ? d.name !== 'Dermatología' : true).map(doc => (
                           <div 
                             key={doc.name} 
@@ -596,9 +597,9 @@ export function PatientApp({
                               </div>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                                  {doc.rating} ({doc.reviews} {t('patient.reviews') || 'reseñas'})
+                                  {doc.rating} ({doc.reviews} {t('patient.reviews')})
                                 </p>
-                                <span style={{ fontSize: '0.7rem', color: 'var(--success)', fontWeight: 600 }}>{doc.next}</span>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--success)', fontWeight: 600 }}>{t('patient.nextAvailable', { next: doc.next })}</span>
                               </div>
                             </div>
                             {selectedPlace === doc.name && <CheckCircle size={16} color="var(--accent-primary)" />}
@@ -610,13 +611,13 @@ export function PatientApp({
 
                   {selectedPlace && (
                     <div style={{ marginTop: '-0.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: 'var(--accent-primary)' }}>
-                      <MapPin size={12} /> <span style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => { setMapLocation(selectedPlace); setIsMapOpen(true); }}>Ver ubicación del consultorio</span>
+                      <MapPin size={12} /> <span style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => { setMapLocation(selectedPlace); setIsMapOpen(true); }}>{t('patient.officeLocation')}</span>
                     </div>
                   )}
                 </>
               ) : (
                 <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Elegir Centro de Diagnóstico</label>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>{t('patient.chooseCenter')}</label>
                   <div style={{ position: 'relative' }}>
                     <Building2 className="input-icon" size={16} />
                     <select 
@@ -625,15 +626,15 @@ export function PatientApp({
                       value={selectedPlace}
                       onChange={(e) => setSelectedPlace(e.target.value)}
                     >
-                      <option value="">Seleccionar centro...</option>
-                      <option value="Centro de Diagnóstico Sur">Centro de Diagnóstico Sur (Laboratorio/Rayos)</option>
-                      <option value="Sanatorio Otamendi">Sanatorio Otamendi (Imágenes Complejas)</option>
-                      <option value="Laboratorio Rossi">Laboratorio Rossi (Análisis/Genética)</option>
+                      <option value="">{t('patient.selectCenterPlaceholder')}</option>
+                      <option value="Centro de Diagnóstico Sur">{t('nav.home') === 'Home' ? 'South Diagnostic Center (Lab/X-Ray)' : 'Centro de Diagnóstico Sur (Laboratorio/Rayos)'}</option>
+                      <option value="Sanatorio Otamendi">{t('nav.home') === 'Home' ? 'Otamendi Sanitarium (Complex Imaging)' : 'Sanatorio Otamendi (Imágenes Complejas)'}</option>
+                      <option value="Laboratorio Rossi">{t('nav.home') === 'Home' ? 'Rossi Laboratory (Analysis/Genetics)' : 'Laboratorio Rossi (Análisis/Genética)'}</option>
                     </select>
                   </div>
                   {selectedPlace && (
                     <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: 'var(--accent-primary)' }}>
-                      <MapPin size={12} /> <span style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => { setMapLocation(selectedPlace); setIsMapOpen(true); }}>Ver ubicación en mapa</span>
+                      <MapPin size={12} /> <span style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => { setMapLocation(selectedPlace); setIsMapOpen(true); }}>{t('patient.viewLocation')}</span>
                     </div>
                   )}
                 </div>
@@ -642,7 +643,7 @@ export function PatientApp({
               {selectedPlace && (
                 <>
                   <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Días Disponibles - Abril 2026</label>
+                    <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>{t('patient.availableDays')}</label>
                     <div className="date-selector">
                       {['01', '02', '03', '06'].map(d => (
                         <div 
@@ -869,7 +870,7 @@ export function PatientApp({
           <div className="modal-overlay" onClick={() => setIsNotifOpen(false)}>
             <div className="modal-content" style={{ maxHeight: '80%', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Bell size={20} color="var(--accent-primary)" /> Notificaciones</h3>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Bell size={20} color="var(--accent-primary)" /> {t('patient.notificationsTitle')}</h3>
                 <button className="icon-btn" onClick={() => setIsNotifOpen(false)}><X size={20} /></button>
               </div>
               <div style={{ overflowY: 'auto' }}>
@@ -886,7 +887,7 @@ export function PatientApp({
                 setNotifications(prev => prev.map(n => ({...n, unread: false})));
                 setIsNotifOpen(false); 
               }}>
-                Marcar todas como leídas
+                {t('patient.markAllRead')}
               </button>
             </div>
           </div>
@@ -898,14 +899,14 @@ export function PatientApp({
             <div className="modal-content" style={{ padding: '0', overflow: 'hidden', height: '500px' }} onClick={e => e.stopPropagation()}>
               <div style={{ padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
                 <div>
-                  <h3 style={{ fontSize: '1rem' }}>Ubicación</h3>
+                  <h3 style={{ fontSize: '1rem' }}>{t('nav.home') === 'Home' ? 'Location' : 'Ubicación'}</h3>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{mapLocation}</p>
                 </div>
                 <button className="icon-btn" onClick={() => setIsMapOpen(false)}><X size={20} /></button>
               </div>
               <div style={{ flex: 1, backgroundColor: '#e5e7eb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                 <Map size={48} color="var(--text-secondary)" style={{ opacity: 0.3 }} />
-                <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Cargando Google Maps...</p>
+                <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('patient.loadingMap')}</p>
                 
                 {/* Simulated Map Pin */}
                 <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)' }}>
@@ -914,8 +915,8 @@ export function PatientApp({
                 </div>
 
                 <div style={{ position: 'absolute', bottom: '1.5rem', left: '1.5rem', right: '1.5rem' }}>
-                  <button className="btn btn-primary btn-block" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }} onClick={() => alert("Abriendo Google Maps en tu dispositivo...")}>
-                    Iniciar Navegación GPS
+                  <button className="btn btn-primary btn-block" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }} onClick={() => alert("Abriendo Google Maps...")}>
+                    {t('patient.startGps')}
                   </button>
                 </div>
               </div>
