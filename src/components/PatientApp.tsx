@@ -1,4 +1,4 @@
-import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut, QrCode, Sun, Moon, Globe, Search, Building2, MapPin } from 'lucide-react';
+import { Upload, FileText, Calendar, Activity, ShieldCheck, UserX, UserCheck, CheckCircle, Eye, X, Camera, Edit2, AlertCircle, LogOut, QrCode, Sun, Moon, Globe, Building2, MapPin, Stethoscope } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceArea } from 'recharts';
 import { useTranslation } from 'react-i18next';
@@ -38,6 +38,7 @@ export function PatientApp({
   const [showGlossary, setShowGlossary] = useState(false);
   const [isQrOpen, setIsQrOpen] = useState(false);
   const [schedulingType, setSchedulingType] = useState<'DOCTOR' | 'LAB'>('DOCTOR');
+  const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [selectedPlace, setSelectedPlace] = useState('');
   const [selectedDay, setSelectedDay] = useState('03');
   const [selectedHour, setSelectedHour] = useState('09:30');
@@ -492,23 +493,67 @@ export function PatientApp({
               </div>
 
               {schedulingType === 'DOCTOR' ? (
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Especialidad o Profesional</label>
-                  <div style={{ position: 'relative' }}>
-                    <Search className="input-icon" size={16} />
-                    <select 
-                      className="schedule-select" 
-                      style={{ paddingLeft: '2.5rem' }}
-                      value={selectedPlace}
-                      onChange={(e) => setSelectedPlace(e.target.value)}
-                    >
-                      <option value="">Seleccionar profesional...</option>
-                      <option value="Dra. Ana Ríos">Dra. Ana Ríos (Traumatología)</option>
-                      <option value="Dr. Martín Gómez">Dr. Martín Gómez (Cardiología)</option>
-                      <option value="Dra. Elena Méndez">Dra. Elena Méndez (Dermatología)</option>
-                    </select>
+                <>
+                  <div className="form-group" style={{ marginBottom: '1.2rem' }}>
+                    <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Elegir Especialidad</label>
+                    <div style={{ position: 'relative' }}>
+                      <Stethoscope className="input-icon" size={16} />
+                      <select 
+                        className="schedule-select" 
+                        style={{ paddingLeft: '2.5rem' }}
+                        value={selectedSpecialty}
+                        onChange={(e) => { 
+                          setSelectedSpecialty(e.target.value); 
+                          setSelectedPlace(''); 
+                        }}
+                      >
+                        <option value="">¿A qué especialidad buscás?</option>
+                        <option value="Traumatología">Traumatología</option>
+                        <option value="Cardiología">Cardiología</option>
+                        <option value="Dermatología">Dermatología</option>
+                        <option value="Clínica Médica">Clínica Médica</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
+
+                  {selectedSpecialty && (
+                    <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Profesionales en {selectedSpecialty}</label>
+                      <div className="doctor-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {[
+                          { name: 'Dra. Ana Ríos', desc: 'Especialista Senior', rating: '4.8', next: 'Hoy 16:00' },
+                          { name: 'Dr. Julián Pérez', desc: 'Post-doctorado Harvard', rating: '4.9', next: 'Mañana 09:00' },
+                          { name: 'Dr. Martín Gómez', desc: 'Jefe de área', rating: '4.7', next: 'Vie 03 Abr' }
+                        ].filter(d => selectedSpecialty === 'Traumatología' ? d.name !== 'Dermatología' : true).map(doc => (
+                          <div 
+                            key={doc.name} 
+                            className={`doctor-selection-card ${selectedPlace === doc.name ? 'active' : ''}`}
+                            onClick={() => setSelectedPlace(doc.name)}
+                            style={{ 
+                              padding: '0.75rem', 
+                              borderRadius: '12px', 
+                              border: '1px solid var(--border-color)', 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: '0.75rem',
+                              cursor: 'pointer',
+                              backgroundColor: selectedPlace === doc.name ? 'rgba(14, 165, 233, 0.1)' : 'transparent',
+                              borderColor: selectedPlace === doc.name ? 'var(--accent-primary)' : 'var(--border-color)',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            <div className="doc-avatar" style={{ width: '36px', height: '36px', fontSize: '0.8rem' }}>{doc.name.split(' ')[1].substring(0, 2).toUpperCase()}</div>
+                            <div style={{ flex: 1 }}>
+                              <h5 style={{ fontSize: '0.9rem', marginBottom: '0.1rem' }}>{doc.name}</h5>
+                              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>⭐ {doc.rating} • <span style={{ color: 'var(--success)', fontWeight: 600 }}>Próximo: {doc.next}</span></p>
+                            </div>
+                            {selectedPlace === doc.name && <CheckCircle size={16} color="var(--accent-primary)" />}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="form-group" style={{ marginBottom: '1.5rem' }}>
                   <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>Elegir Centro de Diagnóstico</label>
