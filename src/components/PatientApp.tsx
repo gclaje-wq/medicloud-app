@@ -191,9 +191,6 @@ export function PatientApp({
           <button className="icon-btn" onClick={onThemeToggle} style={{ marginRight: '0.5rem' }}>
             {theme === 'light' ? <Moon color="var(--text-secondary)" size={22} /> : <Sun color="var(--text-secondary)" size={22} />}
           </button>
-          <button className="icon-btn" onClick={() => setIsQrOpen(true)} style={{ marginRight: '0.5rem' }}>
-            <QrCode color="var(--accent-primary)" size={24} />
-          </button>
           <button className="icon-btn" onClick={onLogout}>
             <LogOut color="var(--danger)" size={24} />
           </button>
@@ -248,14 +245,6 @@ export function PatientApp({
                     );
                   })}
 
-                  <div className="timeline-item">
-                    <div className="timeline-icon bg-blue"><Upload size={14} /></div>
-                    <div className="timeline-content">
-                      <h4>{t('patient.mri')}</h4>
-                      <p>{t('patient.mriDate')}</p>
-                      <span className="timeline-doctor">{t('patient.mriDoc')}</span>
-                    </div>
-                  </div>
                 </div>
               </div>
             </>
@@ -715,11 +704,22 @@ export function PatientApp({
           </div>
         )}
 
-        {/* Floating Action Button (Symptom Diary) */}
-        {!isOcrScanning && !isScheduling && !previewFile && (
-          <button className="fab-symptom" onClick={() => setIsSymptomOpen(true)} title="Anotar un síntoma rápido">
-            <Edit2 size={24} />
-          </button>
+        {/* Floating Action Buttons */}
+        {!isOcrScanning && !isScheduling && !previewFile && activeTab === 'HOME' && (
+          <>
+            <button 
+              className="fab-symptom" 
+              style={{ left: '1.5rem', right: 'auto', background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))', boxShadow: '0 8px 16px rgba(14, 165, 233, 0.4)' }} 
+              onClick={() => setIsQrOpen(true)} 
+              title="Compartir Mi QR"
+            >
+              <QrCode size={24} />
+            </button>
+            
+            <button className="fab-symptom" onClick={() => setIsSymptomOpen(true)} title="Anotar un síntoma rápido">
+              <Edit2 size={24} />
+            </button>
+          </>
         )}
 
         {/* --- MODALS EXTRA (MVP UX) --- */}
