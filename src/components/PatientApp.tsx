@@ -490,8 +490,20 @@ export function PatientApp({
           <div className="preview-lightbox" onClick={() => setIsScheduling(false)}>
             <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
               <div className="sheet-handle"></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ fontWeight: 700, fontSize: '1.2rem' }}>Agendar Nueva Cita</h3>
+              <div style={{ 
+                position: 'sticky', 
+                top: 0, 
+                backgroundColor: 'var(--bg-secondary)', 
+                zIndex: 100, 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                marginBottom: '1rem',
+                paddingTop: '0.5rem',
+                paddingBottom: '0.5rem',
+                borderBottom: '1px solid var(--border-color)'
+              }}>
+                <h3 style={{ fontWeight: 700, fontSize: '1.2rem', margin: 0 }}>Agendar Nueva Cita</h3>
                 <button className="icon-btn" onClick={() => setIsScheduling(false)} style={{ padding: '0.4rem' }}>
                   <X size={20} />
                 </button>
