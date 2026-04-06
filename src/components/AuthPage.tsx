@@ -3,13 +3,12 @@ import { Mail, Lock, UserRound, ShieldPlus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface AuthPageProps {
-  onLogin: (role: 'DOCTOR' | 'PATIENT', userName: string) => void;
+  onLogin: (userName: string) => void;
 }
 
 export function AuthPage({ onLogin }: AuthPageProps) {
   const { t } = useTranslation();
   const [isRegister, setIsRegister] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'PATIENT' | 'DOCTOR'>('PATIENT');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -36,7 +35,7 @@ export function AuthPage({ onLogin }: AuthPageProps) {
       const cleanName = parts.replace(/[.\d_+-]/g, ' ').trim().split(' ')[0];
       name = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
     }
-    onLogin(selectedRole, name || 'Gonzalo');
+    onLogin(name || 'Gonzalo');
   };
 
   return (
@@ -105,27 +104,7 @@ export function AuthPage({ onLogin }: AuthPageProps) {
              />
           </div>
 
-          <div className="role-selector">
-             <p>{t('auth.accountType')}</p>
-             <div className="role-options">
-               <button 
-                 type="button"
-                 className={`role-btn ${selectedRole === 'PATIENT' ? 'active' : ''}`}
-                 onClick={() => setSelectedRole('PATIENT')}
-               >
-                 {t('auth.patient')}
-               </button>
-               <button 
-                 type="button"
-                 className={`role-btn ${selectedRole === 'DOCTOR' ? 'active' : ''}`}
-                 onClick={() => setSelectedRole('DOCTOR')}
-               >
-                 {t('auth.doctor')}
-               </button>
-             </div>
-          </div>
-
-          <button type="submit" className="btn btn-primary btn-block">
+          <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: '1rem' }}>
              {isRegister ? t('auth.btnRegister') : t('auth.btnLogin')}
           </button>
         </form>
@@ -140,3 +119,4 @@ export function AuthPage({ onLogin }: AuthPageProps) {
     </div>
   );
 }
+

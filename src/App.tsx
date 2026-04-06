@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Sidebar } from './components/Sidebar';
-import { Topbar } from './components/Topbar';
-import { DashboardHome } from './components/DashboardHome';
 import { PatientApp } from './components/PatientApp';
 import { AuthPage } from './components/AuthPage';
 import './patient.css';
@@ -12,31 +9,15 @@ function App() {
   const { i18n } = useTranslation();
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [role, setRole] = useState<'DOCTOR' | 'PATIENT' | null>(null);
-  const [showNotification, setShowNotification] = useState(false);
   const [userName, setUserName] = useState<string>('Gonzalo');
 
-  // Notificación de WebSockets para el Doctor
-  useEffect(() => {
-    if (isAuthenticated && role === 'DOCTOR') {
-      const timer = setTimeout(() => {
-        setShowNotification(true);
-      }, 3000);
-      return () => clearTimeout(timer);
-    } else {
-      setShowNotification(false);
-    }
-  }, [isAuthenticated, role]);
-
-  const handleLogin = (selectedRole: 'DOCTOR' | 'PATIENT', name: string) => {
-    setRole(selectedRole);
+  const handleLogin = (name: string) => {
     setUserName(name || 'Gonzalo');
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    setRole(null);
   };
 
   // Sincronizar el tema con el DOM para variables CSS
@@ -75,7 +56,7 @@ function App() {
 
   const themeToggleFloating = (!isAuthenticated) ? themeToggleBtn : null;
 
-  if (!isAuthenticated || !role) {
+  if (!isAuthenticated) {
     return (
       <>
         {themeToggleFloating}
@@ -87,51 +68,15 @@ function App() {
   return (
     <>
       {themeToggleFloating}
-      {role === 'PATIENT' ? (
-        <PatientApp 
-          userName={userName} 
-          onLogout={handleLogout} 
-          theme={theme}
-          onThemeToggle={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-        />
-      ) : (
-        <div className="app-container">
-          <Sidebar 
-            onLogout={handleLogout} 
-            theme={theme} 
-            onThemeToggle={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
-          />
-          <main className="main-content">
-            <Topbar />
-            
-            <div className="content-area">
-              <DashboardHome patientName={userName} />
-            </div>
-          </main>
-
-          {/* Floating Notification */}
-          {showNotification && (
-            <div className="notification-popover">
-              <div className="notification-pulse"></div>
-              <div>
-                <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.2rem' }}>Nueva Resonancia</h4>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                  El paciente <strong style={{color: 'var(--text-primary)'}}>{userName}</strong> subió un estudio.
-                </p>
-              </div>
-              <button 
-                className="btn btn-primary" 
-                style={{ padding: '0.4rem 0.8rem', marginLeft: '1rem' }}
-                onClick={() => setShowNotification(false)}
-              >
-                Ver
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+      <PatientApp 
+        userName={userName} 
+        onLogout={handleLogout} 
+        theme={theme}
+        onThemeToggle={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      />
     </>
   );
 }
 
 export default App;
+
